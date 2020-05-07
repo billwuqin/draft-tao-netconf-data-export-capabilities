@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,               
+    which is available here: http://xml.resource.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.             
+    There has to be one entity for each item to be referenced.                    
+    An alternate method (rfc include) is described in the references. -->
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2697 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2697.xml">
+<!ENTITY RFC2698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2698.xml">
+<!ENTITY RFC6020 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6020.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc toc="yes" ?>
+<?rfc tocompact="yes"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes" ?>
+<?rfc sortrefs="yes"?>
+<?rfc iprnotified="no" ?>
+<?rfc strict="yes" ?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<rfc category="std" docName="draft-tao-netconf-data-export-capabilities-01"
+     ipr="trust200902">
+  <front>
+    <title abbrev="Data Export Capability">Telemetry Data Export
+    capability</title>
+
+    <author fullname="Ran Tao" initials="R." surname="Tao">
+      <organization>Huawei</organization>
+
+      <address>
+        <postal>
+          <street>101 Software Avenue, Yuhua District</street>
+
+          <city>Nanjing</city>
+
+          <region>Jiangsu</region>
+
+          <code>210012</code>
+
+          <country>China</country>
+        </postal>
+
+        <email>taoran20@huawei.com</email>
+      </address>
+    </author>
+
+    <author fullname="Qin Wu" initials="Q." surname="Wu">
+      <organization>Huawei</organization>
+
+      <address>
+        <postal>
+          <street>101 Software Avenue, Yuhua District</street>
+
+          <city>Nanjing</city>
+
+          <region>Jiangsu</region>
+
+          <code>210012</code>
+
+          <country>China</country>
+        </postal>
+
+        <email>bill.wu@huawei.com</email>
+      </address>
+    </author>
+
+    <author fullname="Liang Geng" initials="L." surname="Geng">
+      <organization>China Mobile</organization>
+
+      <address>
+        <postal>
+          <street>32 Xuanwumen West St, Xicheng District</street>
+
+          <city>Beijing</city>
+
+          <code>10053</code>
+        </postal>
+
+        <email>gengliang@chinamobile.com</email>
+      </address>
+    </author>
+
+    <date year="2020"/>
+
+    <area>OPS Area</area>
+
+    <workgroup>NETCONF Working Group</workgroup>
+
+    <abstract>
+      <t>This document proposes a YANG module for telemetry data export
+      capability which augments system Capabilities model and provide
+      additional telemetry data export attributes associated with system
+      capability for transport dependent capability negotiation.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="intro" title="Introduction">
+      <t>Notification capability model defined in [I-D.netconf-notification-
+      capabilities] allows a client to discover a set of capabilities
+      supported by the server (e.g., basic system capability and YANG-Push
+      related capabilities) both at implementation-time and run- time. These
+      "capabilities" permit the client to adjust its behavior to take
+      advantage of the features exposed by the device.</t>
+
+      <t>However pre-configuration for some transport specific parameters
+      (e.g., transport protocol, encoding format, encryption by the client is
+      still inevitable, which may cause unexpected failure and additional
+      message exchange between client and server.</t>
+
+      <t>This document proposes a YANG module for telemetry data export
+      capability which augments System Capabilities model and provide
+      additional data export attributes for transport dependent capability
+      negotiation.</t>
+
+      <section title="Terminology">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+        "OPTIONAL" in this document are to be interpreted as described in BCP
+        14 [RFC2119] [RFC8174] when, and only when, they appear in all
+        capitals, as shown here.</t>
+      </section>
+    </section>
+
+    <!-- intro -->
+
+    <section title="Data Export capability">
+      <t>The YANG module ietf-notification-capabilities defined in [I-
+      D.netconf-notification-capabilities] specify the following server
+      capabilities related to YANG Push: <list style="symbols">
+          <t>A set of capabilities related to the amount of notifications the
+          server can send out</t>
+
+          <t>Specification of which data nodes support on-change
+          notifications.</t>
+
+          <t>Capability values can be specified on server level, datastore
+          level or on specific data nodes (and their contained sub-tree) of a
+          specific datastore. Capability values on a smaller, more specific
+          part of the server's data always override more generic values.</t>
+
+          <t>On-change capability is not specified on a server level as
+          different datastores usually have different on-change capabilities.
+          On a datastore level on-change capability for configuration and
+          state data can be specified separately.</t>
+        </list></t>
+
+      <t>These server capabilities are transport independent and session level
+      capabilities and can be provided either at implementation time or
+      reported at run time.</t>
+
+      <t>This document augments system Capabilities model and provides
+      additional data export attributes associated with system
+      capabilities:<list style="symbols">
+          <t>Specification of transport protocol the client can use to
+          establish transport connection;</t>
+
+          <t>Specification of encoding selection(e.g., XML or JSON, to binary)
+          of Data Modeled with YANG;</t>
+
+          <t>Specification of secure transport mechanisms that are needed by
+          the client to communicate with the server;</t>
+
+          <t>Specification of the type of data compression algorithm (e.g.,
+          lossless data compression) the client can use for file compression
+          and decompression</t>
+
+          <t>Specification of Maximum number of data nodes that can be sent in
+          a group of data node with the same characteristics;</t>
+
+          <t>Specification of the number of sensors group. A sensor group
+          represents a resuable grouping of multiple paths and exclude
+          filters.</t>
+
+          <t>Specification of the notification message encapsulation type,
+          either one notification per message or multiple notifications per
+          message.</t>
+
+          <t>Specification of the type of subscription, e.g., periodic
+          subscrption, on-change subscription, bulk subscription, adaptive
+          subscription.</t>
+
+          <t>Specification of the time length of sampling interval.</t>
+        </list></t>
+
+      <section title="Tree Diagram">
+        <t>The following tree diagram [RFC8340] provides an overview of the
+        data model.</t>
+
+        <figure>
+          <artwork>    module: ietf-data-export-capabilities
+    augment /sysc:system-capabilities:
+        +--ro data-export-capabilities 
+           +--ro transport-protocol             transport-protocol
+           +--ro encoding-format                encoding-format
+           +--ro secure-transport               secure-transport
+           +--ro compression-mode               compression-mode
+           +--ro max-nodes-per-sensor-group     unint32
+           +--ro max-sensor-group-per-update    unint32
+    augment /sysc:system-capabilities/inc:subscription-capabilities:
+        +--ro message-bundling-support          boolean
+        +--ro subscription-mode                 subscription-mode
+    augment /sysc:system-capabilities/sysc:datastore-capabilities/ +
+                sysc:per-node-capabilities:
+        +--ro sampling-interval*                centiseconds
+        +--ro threshold-support                 boolean</artwork>
+        </figure>
+      </section>
+    </section>
+
+    <section title="YANG Module">
+      <figure>
+        <artwork>&lt;CODE BEGINS&gt; file "ietf-data-export-capabilities.yang"
+module ietf-data-export-capabilities {
+  yang-version 1.1;
+  namespace urn:ietf:params:xml:ns:yang:ietf-notification-data-export-capabilities;
+  prefix dec;
+  import ietf-system-capabilities  { prefix sysc ; }
+  import ietf-notification-capabilities { prefix inc; }
+  organization
+    "IETF NETCONF (Network Configuration) Working Group";
+  contact
+    "WG Web:   &lt;https://tools.ietf.org/wg/netconf/&gt;
+     WG List:  &lt;mailto:netconf@ietf.org&gt;
+     Editor:   Ran Tao
+               &lt;mailto:taoran20@huawei.com&gt;
+               Qin Wu
+               &lt;mailto:bill.wu@huawei.com";
+  description
+    "This module defines an extension to System Capability and YANG Push
+     Notification Capabilities model and provides additional data export
+    attributes for transport dependent capability negotiation.
+
+     Copyright (c) 2019 IETF Trust and the persons identified as
+     authors of the code.  All rights reserved.
+
+     Redistribution and use in source and binary forms, with or
+     without modification, is permitted pursuant to, and subject
+     to the license terms contained in, the Simplified BSD License
+     set forth in Section 4.c of the IETF Trust's Legal Provisions
+     Relating to IETF Documents
+     (http://trustee.ietf.org/license-info).
+
+     This version of this YANG module is part of RFC XXXX;
+     see the RFC itself for full legal notices.";
+     /* Identities */
+      identity transport-protocol {
+       description
+        "Base identity for transport protocol type.";
+      }
+
+     identity tcp {
+      base transport-protocol;
+       description
+        "Identity for tcp transport protocol.";
+     }
+
+     identity udp {
+       base transport-protocol;
+       description
+        "Identity for udp transport protocol.";
+     }
+
+     identity grpc {
+       base transport-protocol;
+       description
+        "Identity for grpc transport protocol.";
+     }
+
+      identity security-protocol {
+       description
+        "Base identity for security protocol type.";
+      }
+
+     identity tls {
+      base security-protocol;
+       description
+        "Identity for tls security protocol.";
+     }
+
+     identity ssh {
+       base security-protocol;
+       description
+        "Identity for ssh transport protocol.";
+     }
+
+      identity encoding-format {
+       description
+        "Base identity for encoding format type.";
+      }
+
+     identity xml {
+      base encoding-format;
+       description
+        "Identity for xml encoding format.";
+     }
+
+     identity json {
+       base encoding-format;
+       description
+        "Identity for json encoding format.";
+     }
+
+     identity gpb {
+       base encoding-format;
+       description
+        "Identity for gpb encoding format.";
+     }
+     identity cbor {
+       base encoding-format;
+       description
+        "Identity for cbor encoding format.";
+     }
+      identity compression-mode {
+       description
+        "Base identity for compression mode.";
+      }
+
+     identity gzip {
+      base security-protocol;
+       description
+        "Identity for gzip compression mode.";
+     }
+
+     identity deflate {
+       base security-protocol;
+       description
+        "Identity for deflate compression mode.";
+     }
+
+      identity subscription-mode {
+       description
+        "Base identity for subscription mode.";
+      }
+
+     identity periodic {
+      base subscription-mode;
+       description
+        "Identity for periodic subscription mode.";
+     }
+
+     identity on-change {
+       base subscription-mode;
+       description
+        "Identity for on change subscription mode.";
+     }
+    identity event {
+       base subscription-mode;
+       description
+        "Identity for event based subscription mode.";
+     }
+    augment /sysc:system-capabilities {
+     description "Add system level capability.";
+        container data-export-capabilities {
+      description "Capabilities related to transport dependent capability negotiation.";
+        leaf transport-protocol {
+              type identityref {
+               base transport-protocol;
+            }
+           description
+            "Type of transport protocol.";
+         }
+         leaf encoding-format {
+           type identityref {
+              base encoding-format;
+           }
+           description
+             "Type of encoding format.";
+         }
+         leaf security-protocol {
+          type identityref {
+             base security-protocol;
+          }
+          description
+           "Type of secure transport.";
+         }
+       leaf compression-mode{
+         type identityref {
+            base compression-mode;
+         }
+         description
+          "Type of compression mode.";
+      }
+      leaf max-nodes-per-sensor-group {
+        type uint32 {
+              range "1..max";
+        }
+        description
+          "Maximum number of selected data nodes that can be sent
+           per sensor group.";
+      }
+      leaf max-sensor-group-per-update {
+        type uint32 {
+              range "1..max";
+        }
+        description
+          "Maximum number of sensor groups that can be sent
+           in an update.";
+      }
+    }
+  }
+    augment "/sysc:system-capabilities/inc:subscription-capabilities" {
+     description "Add subscription level capability.";
+         leaf message-bundling-support {
+           type boolean;
+            default false;
+            description
+             "Enables message bundling support.";
+          }
+         leaf subscription-mode {
+              type identityref {
+               base subscription-mode;
+            }
+           description
+            "Type of subscription mode.";
+         }
+  }
+    augment "/sysc:system-capabilities/sysc:datastore-capabilities/sysc:per-node-capabilities" {
+     description "Add datastore and node level capability.";
+        leaf-list sampling-interval {
+          type uint32;
+          units "centiseconds";
+          description "Time-based start and stop triggers
+          are used to define the Sampling intervals.  All packets 
+          are selected that arrive at the Observation Point within 
+          the time intervals defined by the start and stop triggers 
+          (i.e., arrival time of the packet is larger than the start 
+          time and smaller than the stop time).";
+           reference
+         "RFC 5475: Sampling and Filtering Techniques for IP Packet 
+         Selection";
+        }
+      leaf threshold-support {
+         type boolean;
+         default false;
+         description
+         "Set to true if the subscription mode is event based
+         subscription mode.  Set to false
+         if event based subscription mode is not supported.";
+      }
+  }
+}
+&lt;CODE ENDS&gt;</artwork>
+      </figure>
+    </section>
+
+    <section title="IANA Considerations">
+      <section anchor="xml" title="Updates to the IETF XML Registry">
+        <t>This document registers a URI in the "IETF XML Registry" [RFC3688].
+        Following the format in [RFC3688], the following registration has been
+        made:</t>
+
+        <figure>
+          <artwork>   URI:
+      urn:ietf:params:xml:ns:yang:ietf-data-export-capabilities
+   Registrant Contact:
+      The IESG.
+   XML:
+      N/A; the requested URI is an XML namespace.</artwork>
+        </figure>
+      </section>
+
+      <section anchor="module"
+               title="Updates to the YANG Module Names Registry">
+        <t>This document registers one YANG module in the "YANG Module Names"
+        registry [RFC6020]. Following the format in [RFC6020], the following
+        registration has been made:</t>
+
+        <figure>
+          <artwork>   name:
+      ietf-data-export-capabilities
+   namespace:
+      urn:ietf:params:xml:ns:yang:ietf-data-export-capabilities
+   prefix:
+      dec
+   reference:
+      RFC XXXX (RFC Ed.: replace XXX with actual RFC number and remove
+      this note.)</artwork>
+        </figure>
+      </section>
+    </section>
+
+    <section anchor="security" title="Security Considerations">
+      <t>The YANG module specified in this document defines a schema for data
+      that is designed to be accessed via network management protocols such as
+      NETCONF [RFC6241] or RESTCONF [RFC8040]. The lowest NETCONF layer is the
+      secure transport layer, and the mandatory-to-implement secure transport
+      is Secure Shell (SSH) [RFC6242]. The lowest RESTCONF layer is HTTPS, and
+      the mandatory-to-implement secure transport is TLS [RFC8446].</t>
+
+      <t>The NETCONF Configuration Access Control Model (NACM) [RFC8341]
+      provides the means to restrict access for particular NETCONF or RESTCONF
+      users to a preconfigured subset of all available NETCONF or RESTCONF
+      protocol operations and content.</t>
+
+      <t>There are a number of data nodes defined in this YANG module that are
+      writable/creatable/deletable (i.e., config true, which is the default).
+      These data nodes may be considered sensitive in some network
+      environments. Write operations (e.g., edit-config) to these data nodes
+      without proper protection can have a negative effect on network
+      operations. These are the subtrees and data nodes and their
+      sensitivity/vulnerability:<list style="symbols">
+          <t>/sysc:system-capabilities/dec:transport-protocol</t>
+
+          <t>/sysc:system-capabilities/dec:encoding-format</t>
+
+          <t>/sysc:system-capabilities/dec:secure-transport</t>
+
+          <t>/sysc:system-capabilities/dec:compression-mode</t>
+
+          <t>/sysc:system-capabilities/dec:max-nodes-per-sensor-group</t>
+
+          <t>/sysc:system-capabilities/dec:sensor-group-count</t>
+
+          <t>/sysc:system-capabilities/inc:subscription-capabilities/dec:message-bundling-support</t>
+
+          <t>/sysc:system-capabilities/inc:subscription-capabilities/dec:subscription-mode</t>
+
+          <t>/sysc:system-capabilities/sysc:datastore-capabilities/sysc:per-node-capabilities/dec:sampling-interval</t>
+        </list></t>
+    </section>
+
+    <!---->
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119.xml"?>
+
+      <?rfc include="reference.RFC.8174.xml"?>
+
+      <?rfc include="reference.RFC.7950.xml"?>
+
+      <?rfc include="reference.RFC.8342.xml"?>
+
+      <?rfc include="reference.RFC.8407.xml"?>
+
+      <?rfc include="reference.RFC.8126.xml"?>
+
+      <?rfc include="reference.RFC.8040.xml"?>
+
+      <?rfc include="reference.RFC.6241.xml"?>
+
+      <?rfc include="reference.RFC.6242.xml"?>
+
+      <?rfc include="reference.RFC.8341.xml"?>
+
+      <?rfc include="reference.RFC.8446.xml"?>
+    </references>
+
+    <references title="Informative References">
+      <?rfc include="reference.RFC.3688.xml"?>
+
+      <?rfc include="reference.RFC.6020.xml"?>
+
+      <?rfc include="reference.RFC.8340.xml"?>
+    </references>
+  </back>
+</rfc>
